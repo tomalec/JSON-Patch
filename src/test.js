@@ -84,6 +84,69 @@ describe("JSON-Patch", function () {
     jsonpatch.apply(obj, [{op: 'copy', from: '/baz/0/qux', path: '/baz/1'}]);
     expect(obj).toEqual({foo: 1, baz: [{qux: 'hello'}, 'hello'], bar: 1});
   });
+
+
+  //see https://github.com/PuppetJs/PuppetJs/issues/25 for description of the below problem
+  it('should perform replace instead of add if array index already exists', function() {
+    var obj = {
+      "Content":{
+        "Applications":[
+          {
+            "Application":{
+              "TodoLists":[
+                {
+                  "Todos":[
+
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    };
+
+
+    var patches = [
+      {
+        "op":"replace",
+        "path":"/Content/Applications/0/Application/TodoLists/0",
+        "value":{
+          "Todos":[
+            {
+              "Participants":[
+                {
+                  "FullName":"Administrator"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "op":"add",
+        "path":"/Content/Applications/0/Application/TodoLists/0/Todos/0",
+        "value":{
+          "Participants":[
+            {
+              "FullName":"Administrator"
+            }
+          ]
+        }
+      },
+      {
+        "op":"add",
+        "path":"/Content/Applications/0/Application/TodoLists/0/Todos/0/Participants/0",
+        "value":{
+          "FullName":"Administrator"
+        }
+      }
+    ];
+
+    jsonpatch.apply(obj, patches);
+    expect(obj.Content.Applications[0].Application.TodoLists[0].Todos.length).toBe(1);
+    expect(obj.Content.Applications[0].Application.TodoLists[0].Todos[0].Participants.length).toBe(1);
+  });
 });
 
 // JSLitmus performance test

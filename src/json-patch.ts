@@ -46,7 +46,12 @@ module jsonpatch {
 
   var arrOps = {
     add: function (arr, i) {
-      arr.splice(i, 0, this.value);
+      if(arr[i] === undefined) {
+        arr.splice(i, 0, this.value);
+      }
+      else {
+        arr[i] = this.value;
+      }
       return true;
     },
     remove: function (arr, i) {
