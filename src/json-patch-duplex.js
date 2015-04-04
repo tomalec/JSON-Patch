@@ -197,14 +197,15 @@ var jsonpatch;
             patches.push(patch);
         },
         'splice': function (operationObjects, path) {
-            for(var removedNo = 0, removedLen = this.removed.length; removedNo < removedLen; removedNo++){
+            for (var removedNo = 0, removedLen = this.removed.length; removedNo < removedLen; removedNo++) {
+                // operation objects will get applied in sequence, so we will still be removing at same index
                 operationObjects.push({
                     op: "remove",
-                    path: path + this.index // operation objects will get applied in sequence, so we will still be removing at same index 
+                    path: path + this.index
                 });
             }
             var addedCount = 0;
-            while(addedCount < this.addedCount){                
+            while (addedCount < this.addedCount) {
                 operationObjects.push({
                     op: "add",
                     path: path + (this.index + addedCount),
@@ -349,9 +350,8 @@ var jsonpatch;
                 var a = 0, alen = arr.length, change;
                 while (a < alen) {
                     var change = arr[a];
-                    console.log(_isArray(change.object), mirror);
-                    if ( !(change.name === '__Jasmine_been_here_before__')) {
-                        observeOps[ change.type ].call(change, patches, getPath(root, change.object) );
+                    if (!(change.name === '__Jasmine_been_here_before__')) {
+                        observeOps[change.type].call(change, patches, getPath(root, change.object));
                     }
                     a++;
                 }
@@ -510,7 +510,7 @@ var jsonpatch;
 
         for (var t = 0; t < newKeys.length; t++) {
             var key = newKeys[t];
-            if (!mirror.hasOwnProperty(key) && obj[key]!== undefined) {
+            if (!mirror.hasOwnProperty(key) && obj[key] !== undefined) {
                 patches.push({ op: "add", path: path + "/" + escapePathComponent(key), value: deepClone(obj[key]) });
             }
         }
