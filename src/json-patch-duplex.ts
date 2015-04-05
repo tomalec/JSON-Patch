@@ -492,6 +492,40 @@ module jsonpatch {
   function _generate(mirror, obj, patches, path) {
     var newKeys = _objectKeys(obj);
     var oldKeys = _objectKeys(mirror);
+    //todo split into two fun to reduce unused vars
+    if(_isArray(mirror) && _isArray(obj)){
+        // handle indexes
+        var newIndex;
+        var oldIndex = 0;
+        var oldLength = mirror.length;
+        var newLength = obj.length;
+        var parallelIndex = 0;
+        for(; oldIndex < oldLength; oldIndex++){
+            newIndex = obj.indexOf(mirror[oldIndex], parallelIndex);
+            if(newIndex === parallelIndex){ // same place
+                parallelIndex++;
+                continue;
+            } else if( newIndex === -1){ // item removed
+                patches.push({ op: "remove", path: path + "/" + parallelIndex });
+                // parallelIndex left behind
+            } else if( newIndex > parallelIndex) /*given by indexOf.fromIndex*/{ // smth was added
+                while(newIndex > parallelIndex){
+                    patches.push({ op: "add", path: path + "/" + parallelIndex, value: obj[parallelIndex] });
+                    parallelIndex++;
+                }
+                parallelIndex++;
+            }
+        }
+        // continue with new values
+        for(;parallelIndex<newLength;parallelIndex++){
+            patches.push({ op: "add", path: path + "/" + parallelIndex, value: obj[parallelIndex] });                
+        }
+
+        // clear array indexes from newKeys and oldKeys, to make handle additional properties
+        oldKeys = filterNonInts(oldKeys);
+        newKeys = filterNonInts(newKeys);
+
+    }
     var changed = false;
     var deleted = false;
 
@@ -554,6 +588,16 @@ module jsonpatch {
       return false;
     }
     return true;
+  }
+
+  function filterNonInts(arr:any[]):any[]{
+      var filtered = [];
+      for(var index=0, len = arr.length; index<len; index++){
+          if(!isInteger(arr[index])){
+              arr.push(arr[index]);
+          }
+      }
+      return filtered;
   }
 
   /// Apply a json-patch operation on an object tree

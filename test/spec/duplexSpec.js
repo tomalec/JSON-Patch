@@ -669,11 +669,31 @@ describe("duplex", function () {
         jsonpatch.apply(obj2,patches);
         expect(obj).toEqualInJson(obj2);
     });
+    it('should generate nice add op on array.splice', function() {
+      Object.observe = Array.observe = undefined; 
+        obj = { items: ["1", "2", "3"]};
+        var observer = jsonpatch.observe(obj);
+
+        obj.items.splice(1, 0, "1.5"); // <<-- adding smth between first and second item
+
+        patches = jsonpatch.generate(observer);
+
+        // Expect to have only one 'remove' operation, otherwise patches for big arrays are way too long:
+        // essentially it says to replace *every* item and remove last one.
+        // In case array items are not trivial, this may cause performance issues too, I guess.
+        expect(patches).toEqual([
+            { op: 'add', path: '/items/1', value: "1.5" }
+        ]);
+
+        obj2 = { items: ["1", "2", "3"]};
+        jsonpatch.apply(obj2,patches);
+        expect(obj).toEqualInJson(obj2);
+    });
     it('should generate nice removes and adds op on array.splice', function() {
         obj = { items: ["a", "b", "c", "d", "e"]};
         var observer = jsonpatch.observe(obj);
 
-        obj.items.splice(1, 2, "2", "3"); // <<-- removing second item in-place
+        obj.items.splice(1, 2, "2", "3"); // <<-- replacing second and third item
 
         patches = jsonpatch.generate(observer);
 
@@ -686,7 +706,29 @@ describe("duplex", function () {
             { op: 'add', path: '/items/2', value: "3" }
         ]);
 
-        obj2 = { items: ["a", "2", "3", "d", "e"]};
+        obj2 = { items: ["a", "b", "c", "d", "e"]};
+        jsonpatch.apply(obj2,patches);
+        expect(obj).toEqualInJson(obj2);
+    });
+    it('should generate nice removes and adds op on consecutive array.splice\'s', function() {
+        obj = { items: ["a", "b", "c", "d", "e"]};
+        var observer = jsonpatch.observe(obj);
+
+        obj.items.splice(1, 2, "2", "3"); // <<-- replacing second and third item
+        obj.items.splice(1, 1, 2); // <<-- replacing second item
+
+        patches = jsonpatch.generate(observer);
+
+        // Expect to have two 'remove' operation at index 1, and `add` for every added item,
+        // NO `replace` for any old value.
+        expect(patches).toEqual([
+            { op: 'remove', path: '/items/1' },
+            { op: 'remove', path: '/items/1' },
+            { op: 'add', path: '/items/1', value: 2 },
+            { op: 'add', path: '/items/2', value: "3" }
+        ]);
+
+        obj2 = { items: ["a", "b", "c", "d", "e"]};
         jsonpatch.apply(obj2,patches);
         expect(obj).toEqualInJson(obj2);
     });
