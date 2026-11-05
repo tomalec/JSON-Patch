@@ -1,4 +1,4 @@
-/*! fast-json-patch, version: 0.1.0 */
+/*! fast-json-patch, version: 0.1.1 */
 var jsonpatch = (function() {
   var __getOwnPropNames = Object.getOwnPropertyNames;
   var __commonJS = function(cb, mod) {
