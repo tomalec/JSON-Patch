@@ -1,6 +1,6 @@
 {
     "name": "@tomalec/json-patch-release-rehearsal",
-    "version": "0.0.1",
+    "version": "0.1.0",
     "description": "Release-workflow rehearsal of fast-json-patch, do not use. Fast implementation of JSON-Patch (RFC-6902) with duplex (observe changes) capabilities",
     "homepage": "https://github.com/Starcounter-Jack/JSON-Patch",
     "keywords": [
