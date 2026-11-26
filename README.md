@@ -4,6 +4,7 @@ JSON-Patch
 > A leaner and meaner implementation of JSON-Patch. Small footprint. High performance.
 
 [![Test](https://github.com/Starcounter-Jack/JSON-Patch/actions/workflows/test.yml/badge.svg)](https://github.com/Starcounter-Jack/JSON-Patch/actions/workflows/test.yml)
+[![npm downloads](https://img.shields.io/npm/dm/fast-json-patch.svg)](https://www.npmjs.com/package/fast-json-patch)
 
 With JSON-Patch, you can:
 - **apply** patches (arrays) and single operations on JS object
